@@ -29,6 +29,14 @@ class Dragon : public Enemy {
         return color_;
     }
 
+    virtual void render() override {
+        if (getHealth() >= 30) {
+            base_image_.render();
+        } else {
+            low_hp_image_.render();
+        }
+    }
+
  protected:
     virtual void generateQuestion() override {
         std::mt19937 rnd(std::chrono::high_resolution_clock::now().time_since_epoch().count());
