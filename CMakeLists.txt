@@ -4,12 +4,13 @@ project(DragonsGame)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(DragonsGame main.cpp
-        Attacker.h
-        Hero.h
-        Enemy.h
-        Dragon.h
-        termcolor/termcolor.h
-        Elf.h)
+        units/Attacker.h
+        units/Hero.h
+        units/Enemy.h
+        units/Dragon.h
+        units/Elf.h
+        GamePlayer.h
+)
 
 include_directories(/usr/local/include)
 find_package(SFML 2.6 COMPONENTS system window graphics network audio REQUIRED)
