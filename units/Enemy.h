@@ -18,7 +18,7 @@ class Enemy : public Attacker {
     virtual std::string ask() = 0;
     virtual bool checkAns(const std::string& ans) = 0;
 
- protected:
+  protected:
     virtual void generateQuestion() = 0;
 
     std::vector<std::string> phrases_ = {
