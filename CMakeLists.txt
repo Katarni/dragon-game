@@ -8,7 +8,7 @@ add_executable(DragonsGame main.cpp
         units/Hero.h
         units/Enemy.h
         units/Dragon.h
-        units/Elf.h
+        units/WitchKing.h
         GamePlayer.h
 )
 

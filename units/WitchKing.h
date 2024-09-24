@@ -19,7 +19,7 @@ class WitchKing : public Enemy {
         return {phrases_[rnd() % phrases_.size()], question_};
     }
 
-    virtual bool checkAns(const std::string &ans) override {
+    virtual bool checkAns(std::string ans) override {
         return 1;
     }
 

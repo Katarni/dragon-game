@@ -12,15 +12,26 @@ class Dragon : public Enemy {
     enum class Color {
         Red, Blue, Violet
     };
-    Dragon(Color color, int health, int attack) : color_(color), Enemy(health, attack) {}
+
+    Dragon(Color color, int health, int attack,
+           const std::string& name) : color_(color), Enemy(health, attack, name) {}
+    Dragon(Color color, int health, int attack,
+           std::string&& name) : color_(color), Enemy(health, attack, std::move(name)) {}
 
     [[nodiscard]]
-    virtual std::string ask() override {
+    virtual std::pair<std::string, std::string> ask() override {
         generateQuestion();
-        return question_;
+        std::mt19937 rnd(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+        return {phrases_[rnd() % phrases_.size()], question_};
     }
 
-    virtual bool checkAns(const std::string& ans) override {
+    virtual bool checkAns(std::string ans) override {
+        while (ans.size() > 0 && ans[0] == ' ') {
+            ans.erase(ans.begin());
+        }
+        while (ans.size() > 0 && ans.back() == ' ') {
+            ans.pop_back();
+        }
         return ans == answer_;
     }
 
@@ -30,7 +41,7 @@ class Dragon : public Enemy {
     }
 
     virtual void render() override {
-        if (getHealth() >= 30) {
+        if (getHealth() >= 0.4 * getFullHealth()) {
             base_image_.render();
         } else {
             low_hp_image_.render();
@@ -54,8 +65,6 @@ class Dragon : public Enemy {
                 question_ = std::to_string(lhs) + " * " + std::to_string(rhs);
                 answer_ = std::to_string(lhs * rhs);
         }
-
-        question_ = phrases_[rnd() % phrases_.size()] + "\n" + question_;
     }
 
  private:

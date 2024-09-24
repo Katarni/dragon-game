@@ -9,8 +9,8 @@
 
 class Hero : public Attacker {
  public:
-    Hero(const std::string& name, int health, int attack) : name_(name), Attacker(health, attack) {}
-    Hero(std::string&& name, int health, int attack) : name_(std::move(name)), Attacker(health, attack) {}
+    Hero(const std::string& name, int health, int attack) : Attacker(health, attack, name) {}
+    Hero(std::string&& name, int health, int attack) : Attacker(health, attack, std::move(name)) {}
 
     virtual bool isEnemy() final override {
         return false;
@@ -20,7 +20,4 @@ class Hero : public Attacker {
         Attacker::attack(target);
         addAttack(2);
     }
-
- private:
-    std::string name_;
 };

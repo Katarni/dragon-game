@@ -11,7 +11,14 @@
 
 class Attacker {
  public:
-    Attacker(int health, int attack) : health_(health), attack_(attack), full_health_(health), x_(0), y_(0) {}
+    Attacker(int health, int attack,
+             const std::string& name) : health_(health), attack_(attack),
+                                        full_health_(health), x_(0), y_(0),
+                                        name_(name) {}
+    Attacker(int health, int attack,
+             std::string&& name) : health_(health), attack_(attack),
+                                        full_health_(health), x_(0), y_(0),
+                                        name_(std::move(name)) {}
 
     [[nodiscard]]
     bool isAlive() const {
@@ -47,6 +54,10 @@ class Attacker {
     [[nodiscard]]
     int getFullHealth() const {
         return full_health_;
+    }
+
+    const std::string &getName() const {
+        return name_;
     }
 
     void loadImages(const std::string& base, const std::string& low_hp) {
@@ -99,6 +110,8 @@ class Attacker {
  private:
     int health_, attack_, full_health_;
     float x_, y_;
+
+    std::string name_;
 
     void calcCoordinates() {
         float max_w = std::max(base_image_.getWidth(), low_hp_image_.getWidth());

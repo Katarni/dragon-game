@@ -21,7 +21,7 @@ int main() {
     bool is_shift = false;
 
     // temp here
-    goto get_name;
+//    goto get_name;
 
     while (window->isOpen()) {
         sf::Event event{};
@@ -41,6 +41,7 @@ int main() {
                     is_shift = false;
                 }
 
+                if (name_input.getData().size() >= 12) continue;
 
                 char symbol = getCharFromEvent(event, is_shift);
                 if ('a' <= symbol && symbol <= 'z' || 'A' <= symbol && symbol <= 'Z') {
@@ -86,6 +87,6 @@ int main() {
 
     get_name:
 
-    GamePlayer player(name, window);
+    GamePlayer player(name_input.getData(), window);
     player.play();
 }
