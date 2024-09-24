@@ -13,7 +13,7 @@
 class GamePlayer {
  public:
     GamePlayer(const std::string& hero_name, sf::RenderWindow* window) : window_(window) {
-        hero_ = new Hero(hero_name, 100, 10);
+        hero_ = new Hero(hero_name, 1, 10);
         hero_->loadImages("../img/pikachu-back.png", "../img/pikachu-back.png");
         hero_->setRender(window_);
         hero_->scale(0.35);
@@ -21,7 +21,7 @@ class GamePlayer {
         hero_->setY(375);
 
         enemies_ = {
-                new Dragon(Dragon::Color::Blue, 100, 15, "Charizard"),
+                new Dragon(Dragon::Color::Blue, 1, 15, "Charizard"),
                 new Dragon(Dragon::Color::Red, 100, 15, "Gyarados"),
                 new Dragon(Dragon::Color::Violet, 100, 15, ""),
                 new WitchKing(250, 30, "Witch-king")
@@ -86,16 +86,21 @@ class GamePlayer {
         enemy_health_.setProgressColor(sf::Color::Red);
     }
 
-    void play() {
+    bool play() {
         // transition to first level
 
-        bool is_shift = false, question_asked = true;
+        bool is_shift = false;
 
         player_health_.setProgress(1);
 
-        while (cur_state_ < 4) {
+        while (cur_state_ < 4 && hero_->isAlive()) {
             auto background = kat::Image("../img/battle-back-" + std::to_string(cur_state_ + 1) + ".png", window_);
             background.resize(1000, 625);
+
+            bool question_asked = true;
+
+            player_health_.setY(55);
+            enemy_health_.setY(55);
 
             auto question = enemies_[cur_state_]->ask();
             words_lbl_.setData(question.first);
@@ -205,14 +210,143 @@ class GamePlayer {
                 window_->display();
             }
 
-            break;
+            if (!window_->isOpen()) {
+                exit(0);
+            }
 
-            // transition
+            auto win_lbl = kat::Label(350, -160, 100, 50, "", "../fonts/KodeMono-bold.ttf", window_);
+            win_lbl.setData("YOU " + std::string(hero_->isAlive() ? "WIN" : "LOST"));
+            win_lbl.setBackgroundColor(sf::Color::Transparent);
+            win_lbl.setFontSize(66);
+            win_lbl.setColor(sf::Color::White);
+
+            auto continue_lbl = kat::Label(295, -66, 100, 35, "", "../fonts/KodeMono-bold.ttf", window_);
+            continue_lbl.setData("press any key to " + std::string(hero_->isAlive() ? "continue" : "restart"));
+            continue_lbl.setBackgroundColor(sf::Color::Transparent);
+            continue_lbl.setFontSize(30);
+            continue_lbl.setColor(sf::Color::White);
+
+            if (hero_->isAlive()) {
+                continue_lbl.moveX(-30);
+            }
+
+            int64_t iteration = 0;
+            while (player_health_.getY() + player_health_.getHeight() >= -10 ||
+                    win_lbl.getY() < 100 ||
+                    continue_lbl.getY() < 200) {
+                if (iteration % 1048576 == 0) {
+                    if (player_health_.getY() + player_health_.getHeight() >= -10) {
+                        player_health_.moveY(-1);
+                        enemy_health_.moveY(-1);
+                    }
+                    if (win_lbl.getY() < 100) {
+                        win_lbl.moveY(1);
+                    }
+                    if (continue_lbl.getY() < 200) {
+                        continue_lbl.moveY(1);
+                    }
+                    iteration = 0;
+
+                    window_->clear(sf::Color::White);
+                    background.render();
+
+                    enemies_[cur_state_]->render();
+                    hero_->render();
+
+                    player_health_.render();
+                    enemy_health_.render();
+
+                    win_lbl.render();
+                    continue_lbl.render();
+
+                    window_->display();
+                }
+                ++iteration;
+            }
+
+            iteration = 0;
+            auto dead_animation = kat::Animation("../img/explosion/", 10, "sprite_", ".png", window_);
+            dead_animation.scale(2.5);
+
+            std::pair<float, float> center_coor;
+            if (!enemies_[cur_state_]->isAlive()) {
+                center_coor = enemies_[cur_state_]->getCenterCoor();
+            } else {
+                center_coor = hero_->getCenterCoor();
+            }
+
+            dead_animation.setX(center_coor.first - dead_animation.getScaledWidth() / 2);
+            dead_animation.setY(center_coor.second - dead_animation.getScaledHeight() / 2);
+
+            while (true) {
+                if (iteration % 134217728 == 0) {
+                    iteration = 0;
+
+                    window_->clear(sf::Color::White);
+                    background.render();
+
+                    if (enemies_[cur_state_]->isAlive()) {
+                        enemies_[cur_state_]->render();
+                    } else {
+                        hero_->render();
+                    }
+
+                    dead_animation.render();
+
+                    win_lbl.render();
+                    continue_lbl.render();
+
+                    window_->display();
+
+                    if (dead_animation.nextFrame()) {
+                        break;
+                    }
+                }
+                ++iteration;
+            }
+
+            while (window_->isOpen()) {
+                sf::Event event{};
+                while (window_->pollEvent(event)) {
+                    if (event.type == sf::Event::Closed) {
+                        window_->close();
+                        exit(0);
+                    }
+
+                    if (event.type == sf::Event::KeyPressed) {
+                        if (!hero_->isAlive()) {
+                            return true;
+                        }
+
+                        goto transition;
+                    }
+                }
+
+                window_->clear(sf::Color::White);
+                background.render();
+
+                if (enemies_[cur_state_]->isAlive()) {
+                    enemies_[cur_state_]->render();
+                } else {
+                    hero_->render();
+                }
+
+                win_lbl.render();
+                continue_lbl.render();
+
+                window_->display();
+            }
+
+            transition:
+
+            transition();
 
             ++cur_state_;
         }
 
         // ending
+
+        return false;
     }
 
  private:
@@ -235,4 +369,9 @@ class GamePlayer {
             0.75,
             0.75
     };
+
+
+    void transition() {
+
+    }
 };

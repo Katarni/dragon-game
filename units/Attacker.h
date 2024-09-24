@@ -104,6 +104,14 @@ class Attacker {
         low_hp_image_.scale(scale);
     }
 
+    [[nodiscard]]
+    std::pair<float, float> getCenterCoor() const {
+        if (getHealth() < 0.3 * getFullHealth()) {
+            return {low_hp_image_.getScaledCenterX(), low_hp_image_.getScaledCenterY()};
+        }
+        return {base_image_.getScaledCenterX(), base_image_.getScaledCenterY()};
+    }
+
  protected:
     kat::Image base_image_, low_hp_image_;
 

@@ -21,7 +21,7 @@ int main() {
     bool is_shift = false;
 
     // temp here
-//    goto get_name;
+    goto get_name;
 
     while (window->isOpen()) {
         sf::Event event{};
@@ -88,5 +88,5 @@ int main() {
     get_name:
 
     GamePlayer player(name_input.getData(), window);
-    player.play();
+    while (player.play());
 }
