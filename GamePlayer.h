@@ -158,18 +158,15 @@ class GamePlayer {
                             is_shift = true;
                         }
 
-                        if (event.key.code == sf::Keyboard::Left &&
-                            ans_input_.isSelected() && question_asked) {
+                        if (event.key.code == sf::Keyboard::Left && question_asked) {
                             ans_input_.moveCursorLeft();
                         }
 
-                        if (event.key.code == sf::Keyboard::Right &&
-                            ans_input_.isSelected() && question_asked) {
+                        if (event.key.code == sf::Keyboard::Right && question_asked) {
                             ans_input_.moveCursorRight();
                         }
 
-                        if (event.key.code == sf::Keyboard::BackSpace &&
-                            ans_input_.isSelected() && question_asked) {
+                        if (event.key.code == sf::Keyboard::BackSpace && question_asked) {
                             ans_input_.delCharacter();
                         }
 
