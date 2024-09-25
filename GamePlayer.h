@@ -13,8 +13,8 @@
 class GamePlayer {
  public:
     GamePlayer(const std::string& hero_name, sf::RenderWindow* window) : window_(window) {
-        hero_ = new Hero(hero_name, 1, 10);
-        hero_->loadImages("../img/pikachu-back.png", "../img/pikachu-back.png");
+        hero_ = new Hero(hero_name, 100, 10);
+        hero_->loadImages("../img/pikachu-offside-back.png", "../img/pikachu-offside-back.png");
         hero_->setRender(window_);
         hero_->scale(0.35);
         hero_->setX(250);
@@ -23,19 +23,19 @@ class GamePlayer {
         enemies_ = {
                 new Dragon(Dragon::Color::Blue, 1, 15, "Charizard"),
                 new Dragon(Dragon::Color::Red, 100, 15, "Gyarados"),
-                new Dragon(Dragon::Color::Violet, 100, 15, ""),
+                new Dragon(Dragon::Color::Violet, 100, 15, "Venusaur"),
                 new WitchKing(250, 30, "Witch-king")
         };
 
-        for (int i = 0; i < 2; ++i) {
+        for (int i = 0; i < 4; ++i) {
             enemies_[i]->setX(init_coor_[i].first);
             enemies_[i]->setY(init_coor_[i].second);
 
             enemies_[i]->scale(init_scales_[i]);
 
             enemies_[i]->setRender(window);
-            enemies_[i]->loadImages("../img/dragon-" + std::to_string(i + 1) + "-base.png",
-                                   "../img/dragon-" + std::to_string(i + 1) + "-low-hp.png");
+            enemies_[i]->loadImages("../img/dragons/dragon-" + std::to_string(i + 1) + "-base.png",
+                                   "../img/dragons/dragon-" + std::to_string(i + 1) + "-low-hp.png");
         }
 
         ans_input_ = kat::TextInput(625, 500, 200, 35, "../fonts/NovaMono.ttf", window_);
@@ -87,20 +87,24 @@ class GamePlayer {
     }
 
     bool play() {
-        // transition to first level
+        transition();
 
         bool is_shift = false;
 
         player_health_.setProgress(1);
 
         while (cur_state_ < 4 && hero_->isAlive()) {
-            auto background = kat::Image("../img/battle-back-" + std::to_string(cur_state_ + 1) + ".png", window_);
+            auto background = kat::Image("../img/backs/battle-back-" + std::to_string(cur_state_ + 1) + ".png",
+                                         window_);
             background.resize(1000, 625);
 
             bool question_asked = true;
 
             player_health_.setY(55);
             enemy_health_.setY(55);
+
+            hero_->setX(init_hero_coor_[cur_state_].first);
+            hero_->setY(init_hero_coor_[cur_state_].second);
 
             auto question = enemies_[cur_state_]->ask();
             words_lbl_.setData(question.first);
@@ -232,8 +236,7 @@ class GamePlayer {
 
             int64_t iteration = 0;
             while (player_health_.getY() + player_health_.getHeight() >= -10 ||
-                    win_lbl.getY() < 100 ||
-                    continue_lbl.getY() < 200) {
+                    win_lbl.getY() < 100 || continue_lbl.getY() < 200) {
                 if (iteration % 1048576 == 0) {
                     if (player_health_.getY() + player_health_.getHeight() >= -10) {
                         player_health_.moveY(-1);
@@ -279,7 +282,7 @@ class GamePlayer {
             dead_animation.setY(center_coor.second - dead_animation.getScaledHeight() / 2);
 
             while (true) {
-                if (iteration % 134217728 == 0) {
+                if (iteration % 67108864 == 0) {
                     iteration = 0;
 
                     window_->clear(sf::Color::White);
@@ -339,12 +342,13 @@ class GamePlayer {
 
             transition:
 
-            transition();
-
             ++cur_state_;
+            if (cur_state_< 4) {
+                transition();
+            }
         }
 
-        // ending
+        ending();
 
         return false;
     }
@@ -361,17 +365,90 @@ class GamePlayer {
     kat::TextInput ans_input_;
     kat::ProgressBar player_health_, enemy_health_;
 
+    std::vector<std::pair<float, float>> init_hero_coor_ = {
+            {250, 375},
+            {250, 350},
+            {200, 400},
+            {400, 450}
+    };
+
     std::vector<std::pair<float, float>> init_coor_ = {
             {500, 50},
-            {500, 40}
+            {530, 70},
+            {540, 120},
+            {570, 180}
     };
     std::vector<float> init_scales_ = {
             0.75,
-            0.75
+            0.75,
+            0.9,
+            0.4
     };
 
-
     void transition() {
+        auto running_pikachu = kat::Animation("../img/pikachu-run/", 4, "sprite_", ".png", window_);
+        running_pikachu.setY(410);
+        running_pikachu.scale(0.45);
+        running_pikachu.setDuration(9500);
+        auto background = kat::Image("../img/transitions/transition-" +
+                                     std::to_string(cur_state_ % 2 + 1) + ".png",
+                                     window_);
+        background.resize(1000, 625);
+        int iteration = 0;
+        while (running_pikachu.getX() + running_pikachu.getScaledWidth() <
+                static_cast<float>(window_->getSize().x)) {
+            if (iteration % 500 == 0) {
+                iteration = 0;
 
+                window_->clear(sf::Color::White);
+                background.render();
+
+                running_pikachu.render();
+
+                window_->display();
+
+                running_pikachu.moveX(1);
+            }
+            if (running_pikachu.tick()) {
+                window_->clear(sf::Color::White);
+                background.render();
+
+                running_pikachu.render();
+
+                window_->display();
+            }
+
+            ++iteration;
+        }
+    }
+
+    void ending() {
+        auto background = kat::Image("../img/backs/finish-back.png", window_);
+        background.resize(1000, 625);
+
+        auto pikachu = kat::Image("../img/pikachu-front.png", window_);
+        pikachu.setX(410);
+        pikachu.setY(510);
+        pikachu.scale(0.2);
+
+        while (window_->isOpen()) {
+            sf::Event event{};
+            while (window_->pollEvent(event)) {
+                if (event.type == sf::Event::Closed) {
+                    window_->close();
+                }
+
+                if (event.type == sf::Event::KeyPressed) {
+                    window_->close();
+                }
+            }
+
+            window_->clear(sf::Color::White);
+            background.render();
+
+            pikachu.render();
+
+            window_->display();
+        }
     }
 };

@@ -4,7 +4,7 @@ int main() {
     std::string name = "chipi-chipi";
     auto window = new sf::RenderWindow(sf::VideoMode(1000, 625), "Dragons Game");
 
-    auto back = kat::Image("../img/start-back.jpeg", window);
+    auto back = kat::Image("../img/backs/start-back.jpeg", window);
     back.resizeByWidth(1000);
 
     auto header = kat::Label(295, 100, 300, 70, "Dragons game", "../fonts/NovaMono.ttf", window);
@@ -21,7 +21,7 @@ int main() {
     bool is_shift = false;
 
     // temp here
-    goto get_name;
+//    goto get_name;
 
     while (window->isOpen()) {
         sf::Event event{};
