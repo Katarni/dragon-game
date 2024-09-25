@@ -44,6 +44,9 @@ class WitchKing : public Enemy {
                 cur = cur * 10 + c - '0';
             }
         }
+        if (cur > 1) {
+            ans.push_back(cur);
+        }
         std::sort(nums.begin(), nums.end());
         return nums == answer_;
     }
