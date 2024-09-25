@@ -26,10 +26,10 @@ class Dragon : public Enemy {
     }
 
     virtual bool checkAns(std::string ans) override {
-        while (ans.size() > 0 && ans[0] == ' ') {
+        while (!ans.empty() && ans[0] == ' ') {
             ans.erase(ans.begin());
         }
-        while (ans.size() > 0 && ans.back() == ' ') {
+        while (!ans.empty() && ans.back() == ' ') {
             ans.pop_back();
         }
         return ans == answer_;

@@ -20,7 +20,32 @@ class WitchKing : public Enemy {
     }
 
     virtual bool checkAns(std::string ans) override {
-        return 1;
+        while (!ans.empty() && ans[0] == ' ') {
+            ans.erase(ans.begin());
+        }
+        while (!ans.empty() && ans.back() == ' ') {
+            ans.pop_back();
+        }
+
+        std::vector<int> nums;
+        int cur = 0;
+        for (char c : ans) {
+            if (c == ',') continue;
+
+            if (c == ' ') {
+                if (cur > 1) {
+                    nums.push_back(cur);
+                }
+                cur = 0;
+                continue;
+            }
+
+            if ('0' <= c && c <= '9') {
+                cur = cur * 10 + c - '0';
+            }
+        }
+        std::sort(nums.begin(), nums.end());
+        return nums == answer_;
     }
 
  protected:
