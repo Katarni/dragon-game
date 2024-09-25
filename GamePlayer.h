@@ -21,7 +21,7 @@ class GamePlayer {
         hero_->setY(375);
 
         enemies_ = {
-                new Dragon(Dragon::Color::Blue, 1, 15, "Charizard"),
+                new Dragon(Dragon::Color::Blue, 100, 15, "Charizard"),
                 new Dragon(Dragon::Color::Red, 100, 15, "Gyarados"),
                 new Dragon(Dragon::Color::Violet, 100, 15, "Venusaur"),
                 new WitchKing(250, 30, "Witch-king")
